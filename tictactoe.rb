@@ -1,31 +1,16 @@
 class Player
-  attr_reader :name, :mark
+  attr_reader :name, :mark, :box
 
-  @@player_count = 0
-
-  def initialize
-    @@player_count += 1
-    name_chooser
-    mark_chooser
+  def initialize(name, mark)
+    @name = name
+    @mark = mark
   end
 
-  def choose_box
-    puts "#{name}, please choose a box:"
-    box = gets.chomp.to_i
-  end
-
-  private  
-  def name_chooser
-    puts "\nPlayer #{@@player_count}, please enter your name:"
-    @name = gets.chomp.capitalize
-  end
-
-  def mark_chooser
-    @@player_count == 1 ? @mark = 'X' : @mark = 'O'
-    puts "\n#{name}, you will play as #{mark}."
+  def select_box
+    puts "#{name}, please select a box (1 - 9):"
+    @box = gets.chomp.to_i
   end
 end
-
 
 class Board
   attr_reader :current_board, :win_combos
@@ -66,7 +51,6 @@ class Board
     end
   end
 end
-
 
 class TicTacToe
   attr_reader :player1, :player2, :board, :box_key
