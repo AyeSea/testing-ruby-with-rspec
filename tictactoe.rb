@@ -12,6 +12,7 @@ class Player
   end
 end
 
+
 class Board
   attr_reader :current_board, :win_combos
 
@@ -52,12 +53,13 @@ class Board
   end
 end
 
+
 class TicTacToe
   attr_reader :player1, :player2, :board, :box_key
 
   def initialize
-    @player1 = Player.new
-    @player2 = Player.new
+    @player1 = Player.new("Player 1", "X")
+    @player2 = Player.new("Player 2", "O")
     @board = Board.new
   end
 
@@ -70,7 +72,6 @@ class TicTacToe
     end
   end
 
-  private
   def game_description
     puts "\nEach box on the board is represented with a number from 1 - 9,"
     puts "where the box in the top-left corner is 1 and the one in the bottom-right corner is 9."
@@ -80,7 +81,6 @@ class TicTacToe
   def player_turn(playernum)
     puts "#{playernum.name}'s turn."
 
-    #Loop until win or draw conditions are met.
     loop do 
       puts "Please select a box:"
       @box_key = gets.chomp.to_i
@@ -90,15 +90,14 @@ class TicTacToe
           board.update_box(box_key, playernum.mark)
           break
         else
-          puts "Box #{box_key} is already taken. Please try again."
+          puts "Box #{box_key} is already taken. Please try again.\n"
         end
       else
-        puts "Box #{box_key} is not a valid box. Please try again."
+        puts "Box #{box_key} is not a valid box. Please try again.\n"
       end
     end
 
     board.show_board
-    puts
     if victory?(playernum)
       puts "#{playernum.name} wins!"
       exit

@@ -70,3 +70,74 @@ describe Board do
 		end
 	end
 end
+
+describe TicTacToe do
+	let(:game) { TicTacToe.new }
+
+	context "#initialize" do
+		it "creates a new game with two players and a board" do
+			expect(game.player1).to be_instance_of(Player)
+			expect(game.player2).to be_instance_of(Player)
+			expect(game.board).to be_instance_of(Board)
+		end
+	end
+
+	context "#victory?" do
+		it "returns true when player matches top row" do
+			[1, 2, 3].each { |i| game.board.update_box(i, "X") }
+			expect(game.victory?(game.player1)).to be true
+		end
+
+		it "returns true when player matches middle row" do
+			[4, 5, 6].each { |i| game.board.update_box(i, "X") }
+			expect(game.victory?(game.player1)).to be true
+		end
+
+		it "returns true when player matches bottom row" do
+			[7, 8, 9].each { |i| game.board.update_box(i, "X") }
+			expect(game.victory?(game.player1)).to be true
+		end
+
+		it "returns true when player matches left column" do
+			[1, 4, 7].each { |i| game.board.update_box(i, "X") }
+			expect(game.victory?(game.player1)).to be true
+		end
+
+		it "returns true when player matches middle column" do
+			[2, 5, 8].each { |i| game.board.update_box(i, "X") }
+			expect(game.victory?(game.player1)).to be true
+		end
+
+		it "returns true when player matches right column" do
+			[3, 6, 9].each { |i| game.board.update_box(i, "X") }
+			expect(game.victory?(game.player1)).to be true
+		end
+
+		it "returns true when player matches diagonal (top-left to bottom-right)" do
+			[1, 5, 9].each { |i| game.board.update_box(i, "X") }
+			expect(game.victory?(game.player1)).to be true
+		end
+
+		it "returns true when player matches diagonal (top-right to bottom-left)" do
+			[3, 5, 7].each { |i| game.board.update_box(i, "X") }
+			expect(game.victory?(game.player1)).to be true
+		end
+
+		it "returns false when player does not match winning combo" do
+			[1, 2].each { |i| game.board.update_box(i, "X") }
+			expect(game.victory?(game.player1)).to be false
+		end
+	end
+
+	context "#draw?" do
+		it "returns true when board is filled with marks" do
+			(1..9).each { |i| game.board.update_box(i, "X") }
+			expect(game.draw?).to be true
+		end
+
+		it "returns false if one or more boxes is not marked" do
+			(1..8).each { |i| game.board.update_box(i, "X") }
+			expect(game.draw?).to be false
+		end
+	end
+end
