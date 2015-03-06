@@ -61,6 +61,10 @@ class Board
 		layout[row + 1][col].value == "*" ? false : true
 	end
 
+	def outside_board?(row, col)
+		row.between?(0, 5) && col.between?(0, 6) ? false : true
+	end
+
 	private
 	def create_board
 		Array.new(6) { Array.new(7) { Slot.new } }
@@ -70,7 +74,7 @@ end
 
 
 class Game
-	attr_reader :board, :player1, :player2, :players
+	attr_reader :board, :player1, :player2, :players, :row, :col
 	attr_accessor :turn
 
 	def initialize
@@ -91,7 +95,150 @@ class Game
 		end
 	end
 
+	def run
+		loop do
+			player = switch_players
+			puts "#{player.name}'s turn!"
+			board.show
+			row = board.get_row
+			col = board.get_col
+
+			if board.slot_empty?(row, col) && board.valid_move?(row, col)
+				board.update_slot(row, col, player.token)
+			elsif !board.slot_empty?(row, col)
+				puts "That slot is already taken. Please try again.\n"
+				redo
+			elsif !board.valid_move?(row, col)
+				puts "That is not a valid move. Please try again.\n"
+				redo
+			end
+
+			if victory?(player, row, col)
+				board.show
+				puts "######################"
+				puts "#{player.name} wins!"
+				puts "######################"
+				exit
+			else
+				@turn += 1
+			end
+		end
+	end
+
 	def victory?(player, row, col)
+		#VERTICAL TEST
+		grid = board.layout
+		vert = []
+		i = 1
+
+		while i < 4
+			break if board.outside_board?(row + i, col)
+
+			if grid[row + i][col].value == player.token
+				vert << player.token
+				i += 1
+			else
+				break
+			end
+		end
+
+	 #LEFT TEST
+		left = []
+		i = 1
+
+		while i < 4
+			break if board.outside_board?(row, col - i)
+
+	 		if grid[row][col - i].value == player.token
+	 			left << player.token
+	 			i += 1
+	 		else
+	 			break
+	 		end
+		end
+
+	 #RIGHT TEST
+	 right = []
+	 i = 1
+
+		while i < 4
+	 		break if board.outside_board?(row, col + i)
+
+	 		if grid[row][col + i].value == player.token
+	 			right << player.token
+	 			i += 1
+	 		else
+	 			break
+	 		end
+	 	end
+
+	horiz = left + right
+
+	#DIAGONAL (NW) TEST
+	top_left = []
+	i = 1
+
+	while i < 4
+		break if board.outside_board?(row - i, col - i)
+
+		if grid[row - i][col - i].value == player.token
+			top_left << player.token
+			i += 1
+		else
+			break
+		end
+	end
+
+	#DIAGONAL (SE) TEST
+	bottom_right = []
+	i = 1
+
+	while i < 4
+		break if board.outside_board?(row + i, col + i)
+
+		if grid[row + i][col + i].value == player.token
+			bottom_right << player.token
+			i += 1
+		else
+			break
+		end
+	end
+
+	desc_diagonal = top_left + bottom_right
+
+	#DIAGONAL (NE) TEST
+	top_right = []
+	i = 1
+
+	while i < 4
+		break if board.outside_board?(row - i, col + i)
+
+		if grid[row - i][col + i].value == player.token
+			top_right << player.token
+			i += 1
+		else
+			break
+		end
+	end
+
+	#DIAGONAL (SW) TEST
+	bottom_left = []
+	i = 1
+
+	while i < 4
+		break if board.outside_board?(row + i, col - i)
+
+		if grid[row + i][col - i].value == player.token
+			bottom_left << player.token
+			i += 1
+		else
+			break
+		end
+	end
+
+	asc_diagonal = top_right + bottom_left
+
+	vert.size == 3 || horiz.size == 3 || desc_diagonal.size == 3 || asc_diagonal.size == 3 ? true : false
 
 	end
 end

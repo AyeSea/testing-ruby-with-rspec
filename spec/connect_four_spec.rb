@@ -73,6 +73,17 @@ describe Board do
 			expect(board.valid_move?(4, 3)).to be false
 		end
 	end
+
+	context "#outside_board?" do
+		it "returns true for slot at [6, 3] (outside of board)" do
+			expect(board.outside_board?(6, 3)).to be true
+		end
+
+		it "returns false for slot at [5, 3] (1st row, center)" do
+			board.update_slot(5, 3, "\u25ce")
+			expect(board.outside_board?(5, 3)).to be false
+		end
+	end
 end
 
 
@@ -116,9 +127,36 @@ describe Game do
 			expect { game.victory? }.to raise_error(ArgumentError)
 		end
 
-		it "checks above and below current slot for 4 consecutive tokens" do
+		it "returns true if 3 same/consecutive tokens are below current slot" do
 			[5, 4, 3, 2].each { |i| game.board.layout[i][3].value = "\u25ce" }
-			expect(game.victory?(game.player1, 3, 3)).to be true
+			expect(game.victory?(game.player1, 2, 3)).to be true
 		end
+
+		it "returns false if less than 3 same/consecutive tokens are below current slot" do
+			[4, 3, 2].each { |i| game.board.layout[i][3].value = "\u25ce" }
+			expect(game.victory?(game.player1, 2, 3,)).to be false
+		end
+
+		it "returns true if 1 same token to left and 2 same tokens to right of current slot" do
+			[2, 3, 4, 5].each { |i| game.board.layout[5][i].value = "\u25ce" }
+			expect(game.victory?(game.player1, 5, 3)).to be true
+		end
+
+		it "returns true if 2 same tokens to top-left and 1 to bottom-right of current slot" do
+			game.board.layout[5][3].value = "\u25ce"
+			game.board.layout[4][2].value = "\u25ce"
+			game.board.layout[3][1].value = "\u25ce"
+			game.board.layout[2][0].value = "\u25ce"
+			expect(game.victory?(game.player1, 4, 2)).to be true
+		end
+
+		it "returns true if 2 same tokens to top-right and 1 to bottom-left of current slot" do
+			game.board.layout[5][3].value = "\u25ce"
+			game.board.layout[4][4].value = "\u25ce"
+			game.board.layout[3][5].value = "\u25ce"
+			game.board.layout[2][6].value = "\u25ce"
+			expect(game.victory?(game.player1, 4, 4)).to be true
+		end
+		
 	end
 end
