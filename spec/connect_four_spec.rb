@@ -47,42 +47,30 @@ describe Board do
 		end
 	end
 
-	before :each do
-		allow(board).to receive(:gets).and_return("6\n", "4\n")
-	end
-
-	context "#get_slot" do
-		it "points to slot at [5, 3] (1st row, center)" do
-			expect(board.get_slot).to eq board.layout[5][3]
-		end
-	end
-
 	context "#update_slot" do
 		it "updates slot at [5, 3] (1st row, center) to \u25ce" do
-			expect(board.update_slot("\u25ce")).to eq board.layout[5][3] = "\u25ce"
+			expect(board.update_slot(5, 3, "\u25ce")).to eq board.layout[5][3] = "\u25ce"
 		end
 	end
 
 	context "#slot_empty?" do
 		it "returns true if slot at [5, 3] (1st row, center) has no token" do
-			expect(board.slot_empty?).to be true
+			expect(board.slot_empty?(5, 3)).to be true
 		end
 
 		it "returns false if slot at [5, 3] (1st row, center) already has token" do
-			board.update_slot("\u25ce")			
-			allow(board).to receive(:gets).and_return("6\n", "4\n")			
-			expect(board.slot_empty?).to be false
+			board.update_slot(5, 3, "\u25ce")					
+			expect(board.slot_empty?(5, 3)).to be false
 		end
 	end
 
 	context "#valid_move?" do
 		it "returns true when 1st move is a slot in the bottom (6th) row" do
-			expect(board.valid_move?).to be true
+			expect(board.valid_move?(5, 3)).to be true
 		end
 
 		it "returns false when 1st move is a slot in the 2nd-to-last (5th) row" do
-			allow(board).to receive(:gets).and_return("5\n", "4\n")
-			expect(board.valid_move?).to be false
+			expect(board.valid_move?(4, 3)).to be false
 		end
 	end
 end
@@ -97,6 +85,40 @@ describe Game do
 			expect(game.player1).to be_instance_of(Player)
 			expect(game.player2).to be_instance_of(Player)
 		end
+
 	end
 
+	context "#switch_players" do
+		it "returns player1 when number of turns is even" do
+			expect(game.switch_players).to eq game.player1
+		end
+
+		it "returns player2 when number of turns is odd" do
+			game.turn = 1
+			expect(game.switch_players).to eq game.player2
+		end
+	end
+
+	context "#board_full?" do
+		it "returns true when no slots have value of *" do
+			game.board.layout.flatten.map! { |slot| slot.value = "\u25ce" }
+			expect(game.board_full?).to eq true
+		end
+
+		it "returns false when one or more slots has value of *" do
+			game.board.layout[5][3].value = "\u25ce"			
+			expect(game.board_full?).to eq false
+		end
+	end
+
+	context "#victory?" do
+		it "raises error when no arguments are passed in" do
+			expect { game.victory? }.to raise_error(ArgumentError)
+		end
+
+		it "checks above and below current slot for 4 consecutive tokens" do
+			[5, 4, 3, 2].each { |i| game.board.layout[i][3].value = "\u25ce" }
+			expect(game.victory?(game.player1, 3, 3)).to be true
+		end
+	end
 end
